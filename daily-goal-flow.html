@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>데이스쿼트 · 홈 ↔ 다같이 스쿼트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  @property --p{syntax:'<number>';inherits:false;initial-value:0}
+  :root{
+    --purple:#6a3fa0; --purple-deep:#522a82; --purple-soft:#f0e8fa;
+    --yellow:#ffe24d; --yellow-edge:#f3c200;
+    --green:#5fb85a; --green-soft:#e7f6e6;
+    --blue:#4f93f5; --blue-deep:#2f6fe0;
+    --card:#ffffff; --ink:#3c2f4d; --muted:#9b93a8; --line:#efeaf4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .jua{font-family:'Jua',sans-serif}
+  .num{font-family:'Jua',sans-serif;font-variant-numeric:tabular-nums}
+
+  /* ---------- Screen router ---------- */
+  .screen{display:none;min-height:100vh}
+  .screen.active{display:block;animation:scin .3s ease}
+  @keyframes scin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .wrap{max-width:430px;margin:0 auto;min-height:100%;padding:0 0 150px;position:relative}
+
+  /* home bg (peach) vs goal bg (mint) */
+  #homeScreen{background:linear-gradient(180deg,#f7eede 0%,#fbeede 30%,#fdf3e8 100%);background-attachment:fixed}
+  #goalScreen{background:linear-gradient(180deg,#efe8f8 0%,#f1eef6 30%,#eaf6ee 70%,#f3fbf2 100%);background-attachment:fixed}
+
+  header{padding:16px 20px 6px;display:flex;align-items:center;justify-content:space-between}
+  .appname{font-family:'Jua';font-size:24px;color:var(--purple);letter-spacing:-.3px}
+  .back{display:flex;align-items:center;gap:9px}
+  .backbtn{width:38px;height:38px;border-radius:50%;background:#fff;border:1.5px solid var(--line);display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 8px rgba(106,63,160,.1)}
+  .backbtn svg{width:18px;height:18px;stroke:var(--purple);stroke-width:2.4;fill:none}
+  .point{display:inline-flex;align-items:center;gap:7px;background:var(--yellow);border:2px solid #fff;box-shadow:0 3px 8px rgba(243,194,0,.35);border-radius:999px;padding:5px 7px 5px 14px}
+  .point b{font-family:'Jua';font-size:17px;color:var(--purple-deep)}
+  .point .coin{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe98a,#f3c200);display:grid;place-items:center;font-family:'Jua';font-size:13px;color:#9a6b00;border:1px solid #e0ad00}
+  .badgepill{display:inline-flex;align-items:center;gap:5px;background:var(--green-soft);color:var(--green);font-size:12px;font-weight:800;padding:7px 13px;border-radius:999px;border:1.5px solid #cdeccb}
+
+  /* ---------- HOME: squat card ---------- */
+  .squatcard{margin:8px 16px 0;background:var(--card);border-radius:26px;overflow:hidden;box-shadow:0 12px 28px rgba(106,63,160,.10)}
+  .squatcard .strip{background:var(--purple-soft);color:var(--purple);text-align:center;font-size:13px;font-weight:700;padding:11px 10px;border-bottom:1px solid var(--line)}
+  .squatcard .strip b{font-family:'Jua';font-size:16px}
+  .squatcard .inner{padding:16px 18px 18px;text-align:center}
+  .squatcard .ttl{display:flex;align-items:center;justify-content:center;gap:10px}
+  .squatcard .ttl h2{font-family:'Jua';font-size:24px}
+  .streak{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1.5px solid var(--line);box-shadow:0 2px 6px rgba(106,63,160,.08);border-radius:999px;padding:4px 11px;font-family:'Jua';font-size:14px;color:#ff7a3c}
+  .figure{width:150px;height:150px;margin:8px auto 4px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#fbeef4,#f4e8f6);display:grid;place-items:center;font-size:74px}
+  .sets{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:8px}
+  .set .c{width:100%;aspect-ratio:1;max-width:62px;margin:0 auto;border-radius:50%;background:#edeaf2;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10.5px;color:#9990a5;font-weight:600;line-height:1.2;transition:.2s}
+  .set.done .c{background:var(--purple-soft);color:var(--purple)}
+  .set .lb{font-size:11px;color:var(--muted);margin-top:6px;font-weight:600}
+  .startbtn{margin-top:16px;width:100%;border:none;border-radius:22px;padding:18px;font-family:'Jua';font-size:20px;color:#fff;background:var(--purple-deep);cursor:pointer;box-shadow:0 10px 22px rgba(82,42,130,.3);transition:transform .12s}
+  .startbtn:active{transform:translateY(2px) scale(.99)}
+
+  .addsec{margin:22px 20px 0}
+  .addsec h3{font-family:'Jua';font-size:18px;margin-bottom:11px}
+  .addrow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .addcard{background:var(--card);border-radius:18px;padding:14px;box-shadow:0 8px 18px rgba(106,63,160,.07);position:relative;min-height:96px;display:flex;align-items:flex-end}
+  .addcard .pt{position:absolute;top:10px;right:10px;background:var(--yellow);border-radius:999px;font-family:'Jua';font-size:12px;color:var(--purple-deep);padding:2px 9px}
+  .addcard .ic{font-size:30px;position:absolute;top:12px;left:12px}
+  .addcard .nm{font-size:13px;font-weight:700;color:var(--ink)}
+
+  /* ---------- FAB community ---------- */
+  .fab{position:fixed;right:18px;bottom:84px;z-index:12;width:62px;height:62px;border-radius:22px;border:none;background:linear-gradient(150deg,#5fa0ff,var(--blue-deep));box-shadow:0 12px 26px rgba(47,111,224,.42);cursor:pointer;display:grid;place-items:center;animation:fabbob 3s ease-in-out infinite}
+  @keyframes fabbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .fab svg{width:30px;height:30px;fill:#fff}
+  .fab .live{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#e0395a;color:#fff;font-size:9px;font-weight:800;letter-spacing:.4px;padding:2px 7px;border-radius:999px;display:flex;align-items:center;gap:3px;box-shadow:0 3px 8px rgba(224,57,90,.4)}
+  .fab .live .ld{width:5px;height:5px;border-radius:50%;background:#fff;animation:pulse 1.3s infinite}
+  .fab .badge{position:absolute;top:-7px;right:-7px;min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:#ff5470;color:#fff;font-family:'Jua';font-size:13px;display:grid;place-items:center;border:2.5px solid #fff;box-shadow:0 3px 8px rgba(255,84,112,.4);transform:scale(1)}
+  .fab .badge.hide{display:none}
+  .fab .badge.pop{animation:badgepop .4s ease}
+  @keyframes badgepop{0%{transform:scale(1)}45%{transform:scale(1.35)}100%{transform:scale(1)}}
+  .fablabel{position:fixed;right:88px;bottom:99px;z-index:12;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:6px 11px;font-size:11.5px;font-weight:700;color:var(--ink);box-shadow:0 6px 16px rgba(106,63,160,.14);white-space:nowrap}
+  .fablabel b{color:var(--blue-deep)}
+  .fablabel::after{content:"";position:absolute;right:-6px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left-color:#fff}
+
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.6)}70%{box-shadow:0 0 0 5px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+
+  /* ---------- GOAL: hero ---------- */
+  .hero{margin:8px 16px 0;background:var(--card);border-radius:28px;padding:20px 18px 18px;box-shadow:0 12px 28px rgba(106,63,160,.12);text-align:center;position:relative;overflow:hidden}
+  .hero .kicker{display:inline-flex;align-items:center;gap:6px;background:var(--green-soft);color:var(--green);font-size:11.5px;font-weight:800;padding:5px 12px;border-radius:999px}
+  .hero h1{font-family:'Jua';font-size:23px;margin-top:9px;letter-spacing:-.4px}
+  .hero h1 b{color:var(--purple)}
+  .ring{--p:0;width:212px;height:212px;border-radius:50%;margin:14px auto 4px;display:grid;place-items:center;
+    background:conic-gradient(from -90deg, var(--ringcol,#7a4fb5) calc(var(--p)*3.6deg), #ece6f5 0);transition:--p .6s ease;position:relative}
+  .ring::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--ringcol,#7a4fb5);top:6px;left:50%;transform:translateX(-50%);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+  .ring .hole{width:176px;height:176px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #f3eef9}
+  .ring .pct{font-family:'Jua';font-size:50px;line-height:.85;color:var(--purple)}
+  .ring .pct.done{color:var(--green)}
+  .ring .cnt{font-size:13px;color:var(--ink);font-weight:700;margin-top:7px}
+  .ring .cnt .cur{font-family:'Jua';color:var(--purple);font-size:15px}
+  .ring .goal{font-size:11px;color:var(--muted);margin-top:2px}
+  .herometa{display:flex;justify-content:center;gap:18px;margin-top:8px;font-size:12px;color:var(--muted)}
+  .herometa b{color:var(--ink);font-weight:700}
+  .herometa .dotsep{color:#e2dcec}
+  .rulehint{margin-top:12px;font-size:11.5px;color:var(--muted);background:#faf7fd;border:1px dashed #e2d8f0;border-radius:12px;padding:8px 11px;line-height:1.45}
+  .rulehint b{color:var(--purple)}
+  .miles{display:flex;justify-content:space-between;gap:7px;margin:14px 4px 0}
+  .mile{flex:1;text-align:center;background:#faf7fd;border:1.5px solid var(--line);border-radius:13px;padding:8px 2px;font-size:11px;color:var(--muted);font-weight:700;transition:.2s}
+  .mile .ic{font-size:16px;display:block;margin-bottom:2px}
+  .mile.done{background:var(--green-soft);border-color:#bfe6bd;color:var(--green)}
+  .mile.next{background:var(--purple-soft);border-color:#dcc9f0;color:var(--purple)}
+
+  .mine{margin:12px 16px 0;background:var(--card);border-radius:20px;padding:13px 15px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 20px rgba(106,63,160,.08)}
+  .mine .av{width:46px;height:46px;border-radius:14px;background:var(--purple-soft);display:grid;place-items:center;font-size:23px;flex:0 0 auto}
+  .mine .info{flex:1;min-width:0}
+  .mine .info .l1{font-size:14px;font-weight:700}
+  .mine .info .l1 b{color:var(--purple)}
+  .mine .info .l2{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .mine .myrank{text-align:right;flex:0 0 auto}
+  .mine .myrank .n{font-family:'Jua';font-size:26px;line-height:.8;color:var(--purple)}
+  .mine .myrank .u{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px}
+  .gobtn{margin:12px 16px 0;width:calc(100% - 32px);border:none;border-radius:22px;padding:18px;font-family:'Jua';font-size:20px;color:#fff;background:var(--purple-deep);cursor:pointer;box-shadow:0 10px 22px rgba(82,42,130,.32);transition:transform .12s}
+  .gobtn:active{transform:translateY(2px) scale(.99)}
+
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin:24px 22px 10px}
+  .sec-head h2{font-family:'Jua';font-size:18px}
+  .sec-head .hint{font-size:11px;color:var(--muted)}
+  .sec-head .live{font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px;font-weight:800}
+  .board{margin:0 16px;background:var(--card);border-radius:20px;padding:6px;box-shadow:0 8px 20px rgba(106,63,160,.07)}
+  .lbrow{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:14px}
+  .lbrow.me{background:var(--purple-soft)}
+  .lbrow .rk{width:28px;text-align:center;font-family:'Jua';font-size:17px;color:var(--muted);flex:0 0 auto}
+  .lbrow .rk.medal{font-size:20px}
+  .lbrow .pic{width:36px;height:36px;border-radius:11px;background:#f1ecf8;display:grid;place-items:center;font-size:19px;flex:0 0 auto}
+  .lbrow .nm{flex:1;min-width:0}
+  .lbrow .nm .n1{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lbrow .nm .n1 .tagme{color:var(--purple);font-size:10px;font-weight:800;margin-left:4px}
+  .lbrow .nm .bar{height:5px;background:#efeaf4;border-radius:3px;margin-top:4px;overflow:hidden}
+  .lbrow .nm .bar i{display:block;height:100%;background:linear-gradient(90deg,#9a6fd0,var(--purple));border-radius:3px;transition:width .5s}
+  .lbrow .sq{text-align:right;flex:0 0 auto}
+  .lbrow .sq .v{font-family:'Jua';font-size:16px;color:var(--ink)}
+  .lbrow .sq .u{font-size:10px;color:var(--muted)}
+  .lbdivider{height:1px;background:var(--line);margin:4px 12px}
+
+  .feed{margin:0 16px;display:flex;flex-direction:column;gap:9px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse2 1.5s infinite}
+  @keyframes pulse2{0%{box-shadow:0 0 0 0 rgba(95,184,90,.5)}70%{box-shadow:0 0 0 6px rgba(95,184,90,0)}100%{box-shadow:0 0 0 0 rgba(95,184,90,0)}}
+  .msg{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:16px;background:var(--card);box-shadow:0 5px 14px rgba(106,63,160,.06);animation:slidein .35s ease}
+  @keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .msg .pic{width:34px;height:34px;border-radius:10px;background:#f1ecf8;display:grid;place-items:center;font-size:17px;flex:0 0 auto}
+  .msg .body{flex:1;min-width:0}
+  .msg .body .meta{font-size:11.5px;color:var(--muted);margin-bottom:2px}
+  .msg .body .meta b{color:var(--ink);font-weight:700}
+  .msg .body .meta .sq{color:var(--green);font-weight:800}
+  .msg .body .text{font-size:14px;line-height:1.45;word-break:break-word}
+  .msg.system{background:var(--green-soft);box-shadow:none;justify-content:center;color:var(--green);font-size:12.5px;font-weight:700;padding:10px;text-align:center}
+  .msg.system.purple{background:var(--purple-soft);color:var(--purple)}
+
+  .composer{position:fixed;left:0;right:0;bottom:0;z-index:8;padding:12px 16px 18px;background:linear-gradient(180deg,rgba(243,251,242,0),rgba(240,250,240,.97) 40%)}
+  .composer .inner{max-width:430px;margin:0 auto;display:flex;gap:8px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:7px 7px 7px 13px;box-shadow:0 6px 18px rgba(106,63,160,.10)}
+  .composer input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'Pretendard';font-size:14px}
+  .composer input::placeholder{color:var(--muted)}
+  .composer button{border:none;background:var(--purple);color:#fff;border-radius:11px;width:40px;height:36px;cursor:pointer;font-size:17px}
+
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9;background:#fff;border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(106,63,160,.06)}
+  .tabbar .inner{max-width:430px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 10px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:#b9b2c6;font-size:11px;font-weight:600;cursor:pointer}
+  .tab svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.9;fill:none}
+  .tab.active{color:var(--purple)} .tab.active svg{fill:var(--purple);stroke:var(--purple)}
+
+  .overlay{position:fixed;inset:0;z-index:20;background:rgba(40,55,42,.4);backdrop-filter:blur(6px);display:none;place-items:center;padding:24px}
+  .overlay.show{display:grid;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .reached{max-width:344px;width:100%;text-align:center;background:#fff;border-radius:30px;padding:28px 24px 24px;position:relative;overflow:hidden;box-shadow:0 24px 60px rgba(30,70,40,.28)}
+  .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;opacity:.9;animation:fall linear infinite}
+  @keyframes fall{to{transform:translateY(520px) rotate(420deg)}}
+  .reached>.z{position:relative;z-index:1}
+  .reached .small{font-size:11px;letter-spacing:1.5px;color:var(--green);font-weight:800}
+  .seal{width:128px;height:128px;margin:14px auto 6px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#7fd47a,#3f9a3c);box-shadow:0 10px 26px rgba(63,154,60,.4);animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes pop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
+  .seal .e{font-size:56px;filter:drop-shadow(0 4px 7px rgba(0,0,0,.22))}
+  .reached h2{font-family:'Jua';font-size:30px;margin-top:8px;line-height:1}
+  .reached h2 b{color:var(--green)}
+  .reached .res{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .reached .res b{color:var(--ink)}
+  .reached .stat{display:flex;justify-content:center;gap:22px;margin-top:14px}
+  .reached .stat .v{font-family:'Jua';font-size:24px;color:var(--purple)}
+  .reached .stat .l{font-size:11px;color:var(--muted)}
+  .reached .reward{margin-top:14px;display:inline-flex;align-items:center;gap:7px;background:#fff6e0;border:1.5px solid #ffe7a8;color:#b07d00;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:800}
+  .reached .gotit{margin-top:18px;width:100%;border:none;border-radius:16px;padding:15px;font-family:'Jua';font-size:17px;background:var(--purple-deep);color:#fff;cursor:pointer}
+
+  .devtoggle{position:fixed;right:14px;bottom:140px;z-index:15;width:46px;height:46px;border-radius:50%;background:#fff;border:1.5px solid var(--line);color:var(--purple);font-size:20px;cursor:pointer;box-shadow:0 8px 20px rgba(106,63,160,.18)}
+  .dev{position:fixed;right:14px;bottom:196px;z-index:16;width:255px;background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:15px;display:none;box-shadow:0 16px 44px rgba(60,30,90,.22)}
+  .dev.show{display:block;animation:slidein .25s ease}
+  .dev h3{font-family:'Jua';font-size:14px;color:var(--purple);margin-bottom:11px}
+  .dev .lbl{font-size:11px;color:var(--muted);font-weight:600;margin:9px 0 5px}
+  .dev .row{display:flex;gap:6px}
+  .dev button{flex:1;border:1.5px solid var(--line);background:#faf8fd;color:var(--ink);border-radius:11px;padding:9px 6px;font-family:'Pretendard';font-size:12px;font-weight:700;cursor:pointer}
+  .dev button:hover{border-color:var(--purple);color:var(--purple)}
+  .dev button.on{background:var(--purple-soft);border-color:var(--purple);color:var(--purple)}
+  .dev .seg{display:flex;border:1.5px solid var(--line);border-radius:11px;overflow:hidden}
+  .dev .seg button{border:none;border-radius:0;border-right:1.5px solid var(--line)}
+  .dev .seg button:last-child{border-right:none}
+  .note{margin:22px 22px 0;font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+
+  .toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%) translateY(20px);z-index:30;background:var(--purple-deep);color:#fff;font-weight:700;font-size:13px;padding:11px 18px;border-radius:999px;box-shadow:0 10px 24px rgba(82,42,130,.4);opacity:0;pointer-events:none;transition:.3s}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME SCREEN ============ -->
+<div class="screen active" id="homeScreen">
+  <div class="wrap">
+    <header>
+      <div class="appname">데이스쿼트</div>
+      <div class="point"><b class="hdrPoint">151</b><span class="coin">P</span></div>
+    </header>
+
+    <div class="squatcard">
+      <div class="strip">🦵 오늘 함께 <b class="homeTotal">67,500</b>회 스쿼트를 했어요!</div>
+      <div class="inner">
+        <div class="ttl"><h2>오늘의 스쿼트</h2><span class="streak">🔥 1</span></div>
+        <div class="figure">🏋️‍♀️</div>
+        <div class="sets" id="homeSets">
+          <div class="set"><div class="c">스쿼트<br>10회</div><div class="lb">1세트</div></div>
+          <div class="set"><div class="c">스쿼트<br>10회</div><div class="lb">2세트</div></div>
+          <div class="set"><div class="c">스쿼트<br>10회</div><div class="lb">3세트</div></div>
+          <div class="set"><div class="c">스쿼트<br>10회</div><div class="lb">4세트</div></div>
+        </div>
+        <button class="startbtn" id="startBtn">스쿼트 시작</button>
+      </div>
+    </div>
+
+    <div class="addsec">
+      <h3>스쿼트 후 추가 운동 어떠세요?</h3>
+      <div class="addrow">
+        <div class="addcard"><span class="ic">🙆</span><span class="pt">+20 P</span><span class="nm">오버헤드 레이즈</span></div>
+        <div class="addcard"><span class="ic">🤸</span><span class="pt">+20 P</span><span class="nm">런지</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating community button -->
+  <div class="fablabel" id="fabLabel"><b>다같이 스쿼트</b> 대화 중!</div>
+  <button class="fab" id="fab" aria-label="커뮤니티">
+    <span class="live"><span class="ld"></span>LIVE</span>
+    <span class="badge" id="fabBadge">3</span>
+    <svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v12a1 1 0 01-1 1H9l-4 4v-4H4a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+  </button>
+
+  <nav class="tabbar"><div class="inner">
+    <div class="tab active"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>스쿼트</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.2l5.9-.9z"/></svg>혜택</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7z"/><path d="M9 8a3 3 0 016 0"/></svg>스토어</div>
+    <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>내 기록</div>
+  </div></nav>
+</div>
+
+<!-- ============ GOAL SCREEN ============ -->
+<div class="screen" id="goalScreen">
+  <div class="wrap">
+    <header>
+      <div class="back">
+        <button class="backbtn" id="backBtn"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="appname">다같이 스쿼트</div>
+      </div>
+      <span class="badgepill">🎖️ 배지로 보상</span>
+    </header>
+
+    <div class="hero">
+      <span class="kicker">🤝 오늘의 단체 목표</span>
+      <h1>다같이 <b class="goalText">100,000</b>회 채우기!</h1>
+      <div class="ring" id="ring">
+        <div class="hole">
+          <div class="pct num" id="pct">0%</div>
+          <div class="cnt"><span class="cur num" id="curCnt">0</span> 회 달성</div>
+          <div class="goal">목표 <span class="goalSmall">100,000</span>회</div>
+        </div>
+      </div>
+      <div class="herometa">
+        <span>오늘 <b id="ppl">0</b>명 함께</span><span class="dotsep">·</span><span>자정까지 <b id="cdTime">--:--</b></span>
+      </div>
+      <div class="miles" id="miles">
+        <div class="mile" data-m="25"><span class="ic">🎯</span>25%</div>
+        <div class="mile" data-m="50"><span class="ic">🔥</span>50%</div>
+        <div class="mile" data-m="75"><span class="ic">💪</span>75%</div>
+        <div class="mile" data-m="100"><span class="ic">🏆</span>100%</div>
+      </div>
+      <div class="rulehint">🎖️ 목표 달성 시 배지는 <b>스쿼트로 기여한 사람</b>에게만 — 응원만 한 분은 다음 기회에! <b>포인트 지급은 없어요.</b></div>
+    </div>
+
+    <div class="mine">
+      <div class="av">🐰</div>
+      <div class="info">
+        <div class="l1"><b id="myName">신나는토끼81</b> 님</div>
+        <div class="l2" id="myHint">스쿼트 1회만 더해도 배지 자격이 생겨요</div>
+      </div>
+      <div class="myrank"><div class="n num" id="mySquat">0</div><div class="u">내 기여</div></div>
+    </div>
+
+    <div class="sec-head"><h2>오늘 함께 운동한 데이스쿼터</h2><span class="hint">기여 순</span></div>
+    <div class="board" id="board"></div>
+
+    <div class="sec-head"><h2>실시간 응원</h2><div class="live"><span class="dot"></span>LIVE</div></div>
+    <div class="feed" id="feed"></div>
+
+    <div class="note">프로토타입 · 시뮬레이션. ⚙️ 로 진행률 점프·자동 유입 조절.</div>
+  </div>
+
+  <div class="composer"><div class="inner">
+    <input id="msgInput" maxlength="60" placeholder="다같이 응원 한마디…" />
+    <button id="sendBtn">↑</button>
+  </div></div>
+
+  <button class="devtoggle" id="devToggle">⚙️</button>
+  <div class="dev" id="dev">
+    <h3>⚙️ 데모 컨트롤</h3>
+    <div class="lbl">자동 스쿼트 유입</div>
+    <div class="row"><button id="simBtn">▶ 시뮬 시작</button></div>
+    <div class="lbl">진행률 점프</div>
+    <div class="row">
+      <button data-jump="50">50%</button>
+      <button data-jump="95">95%</button>
+      <button data-jump="done">목표 달성</button>
+    </div>
+    <div class="lbl">속도</div>
+    <div class="seg">
+      <button data-speed="1" class="on">1x</button>
+      <button data-speed="3">3x</button>
+      <button data-speed="8">8x</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="reached">
+      <div class="confetti" id="confetti"></div>
+      <div class="z">
+        <div class="small">🎉 오늘의 목표 달성</div>
+        <div class="seal"><span class="e">🏆</span></div>
+        <h2>다같이 <b class="reachGoal">100,000</b>회<br>완성!</h2>
+        <div class="res" id="reachRes"></div>
+        <div class="stat">
+          <div><div class="v num" id="reachPplv">0</div><div class="l">스쿼트 기여자</div></div>
+          <div><div class="v num" id="reachTime">21:40</div><div class="l">달성 시각</div></div>
+        </div>
+        <div class="reward" id="reachReward">🎖️ 스쿼트 기여자에게 '함께 달성' 배지</div>
+        <button class="gotit" id="gotit">함께한 배지 받기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const GOAL=100000;
+  const S={ screen:'home', current:67500, ppl:2480, mySquat:0, myName:'신나는토끼81',
+    unread:3, minutes:18*60, sim:false, speed:1, simTimer:null, reached:false,
+    miles:{25:true,50:true,75:false,100:false}, reachTime:null, homeSets:0 };
+  const END=24*60;
+
+  const roster=[
+    {n:'용감한사자',p:'🦁',v:1180},{n:'튼튼한곰',p:'🐻',v:1040},{n:'날쌘다람쥐',p:'🐿️',v:980},
+    {n:'부지런개미',p:'🐜',v:910},{n:'웃는고래',p:'🐳',v:870},{n:'힘찬호랑이',p:'🐯',v:820},
+    {n:'반짝별',p:'⭐',v:760},{n:'무적펭귄',p:'🐧',v:690},{n:'달리는치타',p:'🐆',v:610},
+    {n:'초록거북',p:'🐢',v:540},{n:'복실강아지',p:'🐶',v:470},{n:'보들판다',p:'🐼',v:430}
+  ];
+  const cheers=['다같이 가보자고! 🔥','5천 회만 더 하면 돼요','지금 페이스 너무 좋아요 💚','한 세트 보태고 갑니다','오늘도 목표 달성 가자!','같이 하니까 든든하다','퇴근하고 30개 채울게요','우리 진짜 잘한다 👏','절반 넘었어요! 화이팅','조금만 더 힘내요','내 몫 다 했습니다 💪','다들 고생 많아요','오늘 안에 무조건 채운다','막판 스퍼트 같이!','함께라서 더 재밌네요','저도 오늘 첨이에요 모두 화이팅','운동하려고 오늘 깔았어요'];
+
+  const $=id=>document.getElementById(id);
+  const qsa=s=>document.querySelectorAll(s);
+  const fmt=n=>Math.round(n).toLocaleString('ko-KR');
+  const pad=n=>String(n).padStart(2,'0');
+  const cdStr=()=>{let r=Math.max(0,END-S.minutes);return pad(Math.floor(r/60))+'시간 '+pad(Math.floor(r%60))+'분';};
+  const clockHM=()=>pad(Math.floor(S.minutes/60)%24)+':'+pad(Math.floor(S.minutes%60));
+  function setText(cls,v){ qsa('.'+cls).forEach(e=>e.textContent=v); }
+
+  // ---------- FAB unread ----------
+  function updateFab(){
+    const b=$('fabBadge');
+    if(S.unread<=0){ b.classList.add('hide'); }
+    else { b.classList.remove('hide'); b.textContent = S.unread>99?'99+':S.unread; b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+    $('fabLabel').style.display = S.unread>0 && S.screen==='home' ? 'block':'none';
+  }
+
+  // ---------- Navigation ----------
+  function openGoal(){
+    S.screen='goal';
+    $('homeScreen').classList.remove('active');
+    $('goalScreen').classList.add('active');
+    S.unread=0; updateFab();           // entering resets the badge
+    window.scrollTo(0,0);
+    renderGoal();
+  }
+  function goHome(){
+    S.screen='home';
+    $('goalScreen').classList.remove('active');
+    $('homeScreen').classList.add('active');
+    window.scrollTo(0,0);
+    renderHome();
+  }
+  $('fab').onclick=openGoal;
+  $('backBtn').onclick=goHome;
+
+  // ---------- Renders ----------
+  function renderHome(){
+    setText('homeTotal',fmt(S.current));
+    setText('hdrPoint','151');
+    // reflect home sets done
+    qsa('#homeSets .set').forEach((el,i)=>el.classList.toggle('done', i<S.homeSets));
+    updateFab();
+  }
+  function renderGoal(){
+    const pct=Math.min(100,S.current/GOAL*100);
+    $('ring').style.setProperty('--p',pct.toFixed(1));
+    $('ring').style.setProperty('--ringcol', S.reached?'#5fb85a':(pct>=75?'#6aab5e':'#7a4fb5'));
+    const pe=$('pct'); pe.textContent=Math.floor(pct)+'%'; pe.classList.toggle('done',S.reached);
+    $('curCnt').textContent=fmt(S.current);
+    setText('goalText',fmt(GOAL)); setText('goalSmall',fmt(GOAL));
+    $('ppl').textContent=fmt(S.ppl);
+    $('cdTime').textContent=cdStr();
+    $('mySquat').textContent=fmt(S.mySquat);
+    setText('hdrPoint','151');
+    $('myHint').innerHTML = S.mySquat>0
+      ? '🎖️ <span style="color:var(--green);font-weight:800">오늘의 기여자</span> — 목표 달성 시 배지 획득'
+      : '🔒 스쿼트 1회만 더해도 <b style="color:var(--purple)">배지 자격</b>이 생겨요';
+    const order=[25,50,75,100]; const nextM=order.find(t=>pct<t);
+    qsa('.mile').forEach(m=>{ const t=+m.dataset.m; m.classList.remove('done','next'); if(pct>=t) m.classList.add('done'); });
+    if(nextM){ const el=document.querySelector('.mile[data-m="'+nextM+'"]'); if(el&&!el.classList.contains('done')) el.classList.add('next'); }
+    renderBoard();
+  }
+  function renderBoard(){
+    const me={n:S.myName,p:'🐰',v:S.mySquat,me:true};
+    const all=roster.map(r=>({...r})).concat([me]).sort((a,b)=>b.v-a.v);
+    const maxv=Math.max(1,all[0].v);
+    const myIdx=all.findIndex(x=>x.me);
+    let show=all.slice(0,6), appendedMe=false;
+    if(myIdx>=6){ show=all.slice(0,5); appendedMe=true; }
+    const board=$('board'); board.innerHTML='';
+    const medals=['🥇','🥈','🥉'];
+    function rowEl(x,maxv,rank){
+      const d=document.createElement('div'); d.className='lbrow'+(x.me?' me':'');
+      const rk=rank<3?`<span class="rk medal">${medals[rank]}</span>`:`<span class="rk">${rank+1}</span>`;
+      const w=(x.v/maxv*100).toFixed(0);
+      d.innerHTML=`${rk}<div class="pic">${x.p}</div><div class="nm"><div class="n1">${x.n}${x.me?'<span class="tagme">나</span>':''}</div><div class="bar"><i style="width:${w}%"></i></div></div><div class="sq"><div class="v num">${fmt(x.v)}</div><div class="u">회</div></div>`;
+      return d;
+    }
+    show.forEach(x=>board.appendChild(rowEl(x,maxv,all.indexOf(x))));
+    if(appendedMe){ const d=document.createElement('div'); d.className='lbdivider'; board.appendChild(d); board.appendChild(rowEl(me,maxv,myIdx)); }
+  }
+
+  // ---------- Feed ----------
+  const feed=$('feed');
+  function sysMsg(t,purple){ const d=document.createElement('div'); d.className='msg system'+(purple?' purple':''); d.textContent=t; feed.prepend(d); trim(); }
+  function addMsg(pic,name,text,squats){
+    const d=document.createElement('div'); d.className='msg';
+    const sq=squats!=null?` · <span class="sq">${squats}회</span>`:'';
+    d.innerHTML=`<div class="pic">${pic}</div><div class="body"><div class="meta"><b>${name}</b>${sq}</div><div class="text"></div></div>`;
+    d.querySelector('.text').textContent=text; feed.prepend(d); trim();
+  }
+  function trim(){ while(feed.children.length>30) feed.removeChild(feed.lastChild); }
+
+  // a new community comment arrives (drives the unread badge)
+  function incomingComment(){
+    const r=roster[Math.floor(Math.random()*roster.length)];
+    const text=cheers[Math.floor(Math.random()*cheers.length)];
+    const sq=Math.random()<.55?(Math.floor(Math.random()*9)+1)*10:null;
+    addMsg(r.p,r.n,text,sq);
+    if(S.screen!=='goal'){ S.unread++; updateFab(); }   // only counts while away
+  }
+
+  function checkMiles(){
+    const pct=S.current/GOAL*100;
+    [25,50,75].forEach(t=>{ if(pct>=t&&!S.miles[t]){ S.miles[t]=true; sysMsg(t===50?'🔥 절반 돌파! 다같이 50% 달성 🎉':(t===75?'💪 75%! 목표가 코앞이에요':'🎯 25% 달성! 시작이 좋아요'),true); } });
+    if(pct>=100&&!S.reached) reachGoal();
+  }
+
+  // ---------- Collective fill ----------
+  function collectiveTick(){
+    if(S.reached) return;
+    const add=Math.floor(Math.random()*600)+200;
+    S.current=Math.min(GOAL,S.current+add);
+    S.ppl+=Math.random()<.6?Math.floor(Math.random()*4):0;
+    roster.forEach(r=>{ if(Math.random()<.5) r.v+=Math.floor(Math.random()*20)+2; });
+    S.minutes+=6*S.speed; if(S.minutes>END) S.minutes=END;
+    checkMiles();
+    if(S.screen==='goal') renderGoal(); else renderHome();
+  }
+  function startSim(){ if(S.sim||S.reached) return; S.sim=true; $('simBtn').textContent='⏸ 시뮬 정지'; $('simBtn').classList.add('on'); S.simTimer=setInterval(collectiveTick,850); }
+  function stopSim(){ S.sim=false; clearInterval(S.simTimer); $('simBtn').textContent='▶ 시뮬 시작'; $('simBtn').classList.remove('on'); }
+
+  function confettiBurst(){ const c=$('confetti'); c.innerHTML=''; const cols=['#5fb85a','#ffe24d','#7a4fb5','#4f93f5','#ff9bb0','#3fb6b0']; for(let i=0;i<30;i++){ const s=document.createElement('i'); s.style.left=(Math.random()*100)+'%'; s.style.background=cols[i%cols.length]; s.style.animationDuration=(2.2+Math.random()*1.8)+'s'; s.style.animationDelay=(Math.random()*.6)+'s'; c.appendChild(s);} }
+
+  function reachGoal(){
+    if(S.reached) return; S.reached=true; S.current=GOAL; stopSim(); S.reachTime=clockHM();
+    setText('reachGoal',fmt(GOAL));
+    $('reachPplv').textContent=fmt(S.ppl);
+    $('reachTime').textContent=S.reachTime;
+    const iC=S.mySquat>0;
+    $('reachRes').innerHTML=iC
+      ? `<b>${fmt(S.ppl)}</b>명이 함께 만들어낸 오늘의 기록 💚<br><b>${S.myName}</b>님도 <b>${fmt(S.mySquat)}</b>회 보태 <b>배지를 받았어요</b> 🎖️`
+      : `<b>${fmt(S.ppl)}</b>명이 함께 만들어낸 오늘의 기록 💚<br><b>${S.myName}</b>님은 오늘 스쿼트 기여가 없어 <b>배지는 다음 기회에</b> — 응원 고마워요!`;
+    const rw=$('reachReward');
+    rw.textContent=iC?'🎖️ ‘함께 달성’ 배지 획득!':'🙌 배지는 스쿼트 기여자 한정 (응원만 = 제외)';
+    rw.style.cssText = iC?'background:#fff6e0;border-color:#ffe7a8;color:#b07d00':'background:#f0f2f6;border-color:#dfe0e6;color:#7a7488';
+    sysMsg('🏆 오늘의 단체 목표 100,000회 달성! 스쿼트로 함께한 모두에게 배지 지급 💚',true);
+    confettiBurst();
+    if(S.screen!=='goal') openGoal();
+    setTimeout(()=>$('overlay').classList.add('show'),500);
+    renderGoal();
+  }
+
+  // ---------- Toast ----------
+  let toastT;
+  function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),1500); }
+
+  // ---------- Contribute (home + goal) ----------
+  function contribute(n){
+    if(S.reached) return;
+    if(S.mySquat===0) S.ppl+=1;
+    S.mySquat+=n; S.current=Math.min(GOAL,S.current+n);
+    checkMiles();
+  }
+  $('startBtn').onclick=()=>{
+    if(S.reached){ toast('오늘 목표 달성 완료 🎉'); return; }
+    S.homeSets=Math.min(4,S.homeSets+1);
+    contribute(10);
+    toast(`+10회 · 오늘 함께 채우는 중! (${S.homeSets}/4세트)`);
+    renderHome();
+    if(S.screen==='goal') renderGoal();
+  };
+
+  // ---------- Composer / dev ----------
+  $('sendBtn').onclick=sendMsg; $('msgInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendMsg(); });
+  function sendMsg(){ const v=$('msgInput').value.trim(); if(!v) return; addMsg('🐰',S.myName,v,S.mySquat||null); $('msgInput').value=''; }
+  $('gotit').onclick=()=>$('overlay').classList.remove('show');
+  $('devToggle').onclick=()=>$('dev').classList.toggle('show');
+  $('simBtn').onclick=()=> S.sim?stopSim():startSim();
+  function seed(scale){ roster.forEach((r,i)=>{ r.v=Math.floor(scale*(1-i*0.06)*(0.8+Math.random()*0.4)); }); }
+  qsa('[data-jump]').forEach(b=>b.onclick=()=>{
+    const j=b.dataset.jump;
+    if(j==='50'){ S.current=50000;S.ppl=1840;S.minutes=14*60;S.miles={25:true,50:false,75:false,100:false}; seed(900); checkMiles(); renderGoal(); }
+    else if(j==='95'){ S.current=95000;S.ppl=3120;S.minutes=21*60;S.miles={25:true,50:true,75:true,100:false}; seed(1500); checkMiles(); renderGoal(); }
+    else if(j==='done'){ S.current=GOAL-200;S.ppl=3480;S.minutes=21*60+40;S.miles={25:true,50:true,75:true,100:false}; seed(1700); reachGoal(); }
+  });
+  qsa('[data-speed]').forEach(b=>b.onclick=()=>{ S.speed=+b.dataset.speed; qsa('[data-speed]').forEach(x=>x.classList.toggle('on',x===b)); });
+
+  // ---------- Boot ----------
+  sysMsg('🌅 오늘의 단체 목표가 열렸어요 — 다같이 100,000회 채워봐요!',true);
+  // pre-seed a few community messages so the feed isn't empty on first entry
+  for(let i=0;i<3;i++) addMsg(roster[i].p,roster[i].n,cheers[i],(i+1)*10);
+  renderHome(); renderGoal();
+  // community comments keep arriving → unread badge ticks while on home
+  setInterval(incomingComment, 3500);
+})();
+</script>
+</body>
+</html>

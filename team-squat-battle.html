@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>팀 스쿼트 배틀 · 데이스쿼트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  :root{
+    --purple:#6a3fa0;
+    --purple-deep:#522a82;
+    --purple-soft:#f0e8fa;
+    --yellow:#ffe24d;
+    --yellow-edge:#f3c200;
+    --blue:#4f93f5;
+    --blue-deep:#2f6fe0;
+    --blue-soft:#e9f1ff;
+    --red:#f0596a;
+    --red-deep:#d8324a;
+    --red-soft:#ffe9ec;
+    --card:#ffffff;
+    --ink:#3c2f4d;
+    --muted:#9b93a8;
+    --line:#efeaf4;
+    --green:#7bc86c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Pretendard',sans-serif;
+    color:var(--ink);
+    background:
+      linear-gradient(180deg,#efe8f8 0%, #f6edf3 34%, #fdeede 72%, #fef4e6 100%);
+    background-attachment:fixed;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .jua{font-family:'Jua',sans-serif;font-weight:400}
+  .num{font-family:'Jua',sans-serif;font-variant-numeric:tabular-nums}
+
+  .wrap{max-width:430px;margin:0 auto;min-height:100%;padding:0 0 150px;position:relative}
+
+  /* ---------- App header ---------- */
+  header{padding:16px 20px 6px;display:flex;align-items:center;justify-content:space-between}
+  .appname{font-family:'Jua',sans-serif;font-size:24px;color:var(--purple);letter-spacing:-.3px}
+  .point{display:inline-flex;align-items:center;gap:7px;background:var(--yellow);border:2px solid #fff;box-shadow:0 3px 8px rgba(243,194,0,.35);border-radius:999px;padding:5px 7px 5px 14px}
+  .point b{font-family:'Jua',sans-serif;font-size:17px;color:var(--purple-deep)}
+  .point .coin{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe98a,#f3c200);display:grid;place-items:center;font-family:'Jua';font-size:13px;color:#9a6b00;border:1px solid #e0ad00}
+
+  /* ---------- Title card ---------- */
+  .titlecard{margin:8px 16px 0;background:var(--card);border-radius:26px;padding:18px 18px 16px;box-shadow:0 10px 26px rgba(106,63,160,.10);position:relative;overflow:hidden;text-align:center}
+  .titlecard .kicker{display:inline-block;background:var(--purple-soft);color:var(--purple);font-size:11px;font-weight:800;letter-spacing:.5px;padding:4px 11px;border-radius:999px}
+  .titlecard h1{font-family:'Jua',sans-serif;font-size:30px;color:var(--ink);margin-top:8px;letter-spacing:-.5px}
+  .titlecard .sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .streak{position:absolute;top:14px;right:14px;display:inline-flex;align-items:center;gap:4px;background:#fff;border:1.5px solid var(--line);box-shadow:0 3px 8px rgba(106,63,160,.08);border-radius:999px;padding:4px 11px;font-family:'Jua';font-size:14px;color:#ff7a3c}
+  .cardbanner{background:var(--purple-soft);color:var(--purple);text-align:center;font-size:13px;font-weight:700;padding:11px 10px;border-bottom:1px solid var(--line)}
+  .cardbanner b{font-family:'Jua';font-size:17px}
+  .teamswrap{position:relative}
+  .countdown{margin-top:11px;display:inline-flex;align-items:center;gap:7px;background:#fff6e0;border:1.5px solid #ffe7a8;color:#b07d00;padding:6px 13px;border-radius:999px;font-size:12px;font-weight:700}
+  .countdown b{font-family:'Jua';font-size:16px;letter-spacing:.5px}
+  .countdown.urgent{background:#ffe9ec;border-color:#ffc6cf;color:#e0395a}
+
+  /* ---------- Scoreboard card ---------- */
+  .arena{margin:14px 16px 0;background:var(--card);border-radius:26px;box-shadow:0 10px 26px rgba(106,63,160,.10);overflow:hidden;position:relative}
+  .vs-badge{position:absolute;top:92px;left:50%;transform:translate(-50%,-50%);z-index:4;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-family:'Jua';font-size:19px;color:#fff;background:linear-gradient(135deg,var(--purple),var(--purple-deep));box-shadow:0 6px 16px rgba(82,42,130,.4);border:3px solid #fff}
+  .teams{display:grid;grid-template-columns:1fr 1fr}
+  .team{padding:20px 10px 16px;position:relative;text-align:center;min-width:0;overflow:hidden}
+  .team.blue{background:linear-gradient(180deg,var(--blue-soft),#fff)}
+  .team.white{background:linear-gradient(180deg,var(--red-soft),#fff)}
+  .team .tag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;padding:4px 12px;border-radius:999px}
+  .team.blue .tag{color:#fff;background:var(--blue)}
+  .team.white .tag{color:#fff;background:var(--red)}
+  /* ---- 3D mascot slot (swap .char for <img>) ---- */
+  .mascot{width:54px;height:54px;margin:6px auto 0;position:relative;filter:drop-shadow(0 6px 7px rgba(80,40,120,.22))}
+  .char{position:absolute;inset:0;background:linear-gradient(160deg,#a079d6,#6e3f93);border-radius:50% 50% 48% 48%/56% 56% 44% 44%}
+  .char::before{content:"";position:absolute;top:9px;left:-3px;right:-3px;height:10px;background:var(--band);border-radius:7px;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+  .char .eye{position:absolute;top:23px;width:6px;height:9px;background:#2a1840;border-radius:50%}
+  .char .eye.l{left:16px}.char .eye.r{right:16px}
+  .char .mouth{position:absolute;top:35px;left:50%;transform:translateX(-50%);width:15px;height:8px;border:2.5px solid #2a1840;border-top:none;border-radius:0 0 16px 16px}
+  .char .arm{position:absolute;top:30px;width:8px;height:14px;background:#6e3f93;border-radius:6px}
+  .char .arm.l{left:-4px;transform:rotate(24deg)}.char .arm.r{right:-4px;transform:rotate(-24deg)}
+  .char.blue{--band:var(--blue)}
+  .char.white{--band:var(--red)}
+  .team .score{font-family:'Jua';font-size:38px;line-height:.9;margin:6px 0 0;letter-spacing:-1px;white-space:nowrap}
+  .team.blue .score{color:var(--blue-deep)}
+  .team.white .score{color:var(--red-deep)}
+  .team .score.bump{animation:bump .4s ease}
+  @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.13)}100%{transform:scale(1)}}
+  .team .unit{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px}
+  .team .ppl{margin-top:9px;font-size:11.5px;color:var(--muted)}
+  .team .ppl b{color:var(--ink)}
+  .team.leading::after{content:"LEAD";position:absolute;top:14px;font-family:'Jua';font-size:12px;letter-spacing:1px;color:#f3a712}
+  .team.blue.leading::after{right:14px}
+  .team.white.leading::after{left:14px}
+
+  /* tug bar */
+  .tug{height:18px;background:linear-gradient(90deg,var(--red),var(--red-deep));position:relative;overflow:hidden;border-top:1px solid var(--line)}
+  .tug .fill{position:absolute;inset:0;width:50%;background:linear-gradient(90deg,var(--blue-deep),var(--blue));transition:width .6s cubic-bezier(.4,1.3,.4,1)}
+  .tug .seam{position:absolute;top:-2px;width:4px;height:22px;background:#fff;left:50%;transform:translateX(-50%);transition:left .6s cubic-bezier(.4,1.3,.4,1);box-shadow:0 0 6px rgba(0,0,0,.18);z-index:2;border-radius:2px}
+  .tug .pct{position:absolute;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800}
+  .tug .pct.l{left:9px;color:#fff}
+  .tug .pct.r{right:9px;color:#fff}
+
+  /* blowout-prevention v2 boost banner */
+  .boost{margin:11px 16px 0;border-radius:16px;padding:11px 14px;font-size:13px;font-weight:800;text-align:center;display:none;align-items:center;justify-content:center;gap:7px;color:#fff;animation:boostpulse 1.8s ease-in-out infinite}
+  .boost.show{display:flex}
+  .boost.comeback{background:linear-gradient(100deg,#ff7a3c,#f0596a)}
+  .boost.golden{background:linear-gradient(100deg,#f7b500,#ff9a3c);color:#5a3a00}
+  @keyframes boostpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.018)}}
+
+  /* my contribution */
+  .mine{margin:12px 16px 0;background:var(--card);border-radius:20px;padding:13px 15px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 20px rgba(106,63,160,.08)}
+  .mine .av{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex:0 0 auto}
+  .mine .av.blue{background:var(--blue-soft)}
+  .mine .av.white{background:var(--red-soft)}
+  .mine .info{flex:1;min-width:0}
+  .mine .info .l1{font-size:14px;font-weight:700}
+  .mine .info .l1 b{color:var(--purple)}
+  .mine .info .l2{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .mine .mysquat{text-align:right}
+  .mine .mysquat .n{font-family:'Jua';font-size:30px;line-height:.8;color:var(--purple)}
+  .mine .mysquat .u{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px}
+
+  .squatbtn{margin:12px 16px 0;width:calc(100% - 32px);border:none;border-radius:22px;padding:18px;font-family:'Jua';font-size:20px;letter-spacing:.5px;color:#fff;background:var(--purple-deep);cursor:pointer;box-shadow:0 10px 22px rgba(82,42,130,.32);transition:transform .12s,box-shadow .12s}
+  .squatbtn:active{transform:translateY(2px) scale(.99);box-shadow:0 4px 12px rgba(82,42,130,.3)}
+  .squatbtn:disabled{filter:grayscale(.6);opacity:.55;cursor:not-allowed}
+
+  /* ---------- Live feed ---------- */
+  .feed-head{display:flex;align-items:center;justify-content:space-between;margin:24px 22px 10px}
+  .feed-head h2{font-family:'Jua';font-size:18px;color:var(--ink)}
+  .feed-head .live{font-size:11px;color:#e0395a;display:flex;align-items:center;gap:5px;font-weight:800}
+  .dot{width:7px;height:7px;border-radius:50%;background:#e0395a;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,57,90,.5)}70%{box-shadow:0 0 0 6px rgba(224,57,90,0)}100%{box-shadow:0 0 0 0 rgba(224,57,90,0)}}
+  .feed{margin:0 16px;display:flex;flex-direction:column;gap:9px}
+  .msg{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:16px;background:var(--card);box-shadow:0 5px 14px rgba(106,63,160,.06);animation:slidein .35s ease}
+  @keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .msg .chip{flex:0 0 auto;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:8px;margin-top:1px;white-space:nowrap}
+  .msg .chip.blue{color:#fff;background:var(--blue)}
+  .msg .chip.white{color:#fff;background:var(--red)}
+  .msg .body{flex:1;min-width:0}
+  .msg .body .meta{font-size:11.5px;color:var(--muted);margin-bottom:2px}
+  .msg .body .meta b{color:var(--ink);font-weight:700}
+  .msg .body .meta .sq{color:var(--purple);font-weight:800}
+  .msg .body .text{font-size:14px;line-height:1.45;word-break:break-word}
+  .msg.system{background:var(--purple-soft);box-shadow:none;justify-content:center;color:var(--purple);font-size:12px;font-weight:600;padding:9px;text-align:center}
+
+  /* ---------- Composer ---------- */
+  .composer{position:fixed;left:0;right:0;bottom:64px;z-index:8;padding:10px 16px;background:linear-gradient(180deg,rgba(253,238,222,0),rgba(253,240,228,.95) 45%)}
+  .composer .inner{max-width:430px;margin:0 auto;display:flex;gap:8px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:7px 7px 7px 11px;box-shadow:0 6px 18px rgba(106,63,160,.10)}
+  .composer .who{font-size:10.5px;font-weight:800;padding:5px 9px;border-radius:9px;white-space:nowrap}
+  .composer .who.blue{color:#fff;background:var(--blue)}
+  .composer .who.white{color:#fff;background:var(--red)}
+  .composer input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:'Pretendard';font-size:14px}
+  .composer input::placeholder{color:var(--muted)}
+  .composer button{border:none;background:var(--purple);color:#fff;border-radius:11px;width:40px;height:36px;cursor:pointer;font-size:17px}
+  .composer button:disabled{opacity:.4}
+
+  /* ---------- Bottom tab bar ---------- */
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:9;background:#fff;border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(106,63,160,.06)}
+  .tabbar .inner{max-width:430px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 10px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:#b9b2c6;font-size:11px;font-weight:600}
+  .tab svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.9;fill:none}
+  .tab.active{color:var(--purple)}
+  .tab.active svg{fill:var(--purple);stroke:var(--purple)}
+
+  /* ---------- Winner overlay ---------- */
+  .overlay{position:fixed;inset:0;z-index:20;background:rgba(60,40,80,.42);backdrop-filter:blur(6px);display:none;place-items:center;padding:24px}
+  .overlay.show{display:grid;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .winner{max-width:340px;width:100%;text-align:center;background:#fff;border-radius:30px;padding:28px 24px 24px;position:relative;overflow:hidden;box-shadow:0 24px 60px rgba(60,30,90,.3)}
+  .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;opacity:.9;animation:fall linear infinite}
+  @keyframes fall{to{transform:translateY(520px) rotate(420deg)}}
+  .winner>.z{position:relative;z-index:1}
+  .winner .small{font-size:11px;letter-spacing:1.5px;color:var(--purple);font-weight:800}
+  .badge{width:132px;height:132px;margin:14px auto 4px;position:relative;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes pop{0%{transform:scale(0) rotate(-25deg)}100%{transform:scale(1) rotate(0)}}
+  .badge .hex{position:absolute;inset:0;clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);display:grid;place-items:center}
+  .badge .hex.outer{background:linear-gradient(160deg,#ffe27a,#f3b200)}
+  .badge .hex.inner{inset:7px;clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
+  .badge .emoji{font-size:50px;filter:drop-shadow(0 4px 7px rgba(0,0,0,.22))}
+  .winner h2{font-family:'Jua';font-size:34px;color:var(--ink);margin-top:8px;line-height:.95}
+  .winner .res{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .winner .res b{color:var(--ink);font-weight:700}
+  .winner .scoreline{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:14px;font-family:'Jua';font-size:26px;letter-spacing:-.5px}
+  .winner .scoreline .b{color:var(--blue-deep)}.winner .scoreline .w{color:var(--red-deep)}.winner .scoreline .x{color:var(--muted);font-size:22px}
+  .winner .reward{margin-top:14px;display:inline-flex;align-items:center;gap:7px;background:#fff6e0;border:1.5px solid #ffe7a8;color:#b07d00;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:800}
+  .winner .gotit{margin-top:18px;width:100%;border:none;border-radius:16px;padding:15px;font-family:'Jua';font-size:17px;background:linear-gradient(135deg,#7a4fb5,var(--purple-deep));color:#fff;cursor:pointer;box-shadow:0 8px 20px rgba(82,42,130,.3)}
+  .winner .reset-note{margin-top:11px;font-size:11.5px;color:var(--muted)}
+
+  /* ---------- Dev / demo controls ---------- */
+  .devtoggle{position:fixed;right:14px;bottom:140px;z-index:15;width:46px;height:46px;border-radius:50%;background:#fff;border:1.5px solid var(--line);color:var(--purple);font-size:20px;cursor:pointer;box-shadow:0 8px 20px rgba(106,63,160,.18)}
+  .dev{position:fixed;right:14px;bottom:196px;z-index:16;width:255px;background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:15px;display:none;box-shadow:0 16px 44px rgba(60,30,90,.22)}
+  .dev.show{display:block;animation:slidein .25s ease}
+  .dev h3{font-family:'Jua';font-size:14px;color:var(--purple);margin-bottom:11px}
+  .dev .lbl{font-size:11px;color:var(--muted);font-weight:600;margin:9px 0 5px}
+  .dev .row{display:flex;gap:6px}
+  .dev button{flex:1;border:1.5px solid var(--line);background:#faf8fd;color:var(--ink);border-radius:11px;padding:9px 6px;font-family:'Pretendard';font-size:12px;font-weight:700;cursor:pointer;transition:.12s}
+  .dev button:hover{border-color:var(--purple);color:var(--purple)}
+  .dev button.on{background:var(--purple-soft);border-color:var(--purple);color:var(--purple)}
+  .dev .seg{display:flex;border:1.5px solid var(--line);border-radius:11px;overflow:hidden}
+  .dev .seg button{border:none;border-radius:0;border-right:1.5px solid var(--line)}
+  .dev .seg button:last-child{border-right:none}
+  .note{margin:24px 22px 0;font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="appname">팀 배틀</div>
+    <div class="point"><b id="hdrPoint">151</b><span class="coin">P</span></div>
+  </header>
+
+  <!-- Title card -->
+  <div class="titlecard">
+    <div class="streak">🔥 7</div>
+    <span class="kicker">매일 06:00 새 팀 · 22:00 승부</span>
+    <h1>팀 스쿼트 배틀</h1>
+    <div class="sub">오늘 <b id="clock" class="num" style="font-family:Pretendard;font-weight:700;color:var(--purple)">06:00</b> · <span id="phaseTxt">배틀 진행 중</span> <span class="dot" id="phaseDot" style="display:inline-block;vertical-align:middle"></span></div>
+    <div class="countdown" id="countdown">⏰ 종료까지 <b id="cdTime">16:00:00</b></div>
+  </div>
+
+  <!-- Scoreboard -->
+  <div class="arena">
+    <div class="cardbanner">🦵 오늘 두 팀 합쳐 <b id="totalSquat">0</b>회 스쿼트 중!</div>
+    <div class="teamswrap">
+    <div class="vs-badge">VS</div>
+    <div class="teams">
+      <div class="team blue" id="teamBlue">
+        <span class="tag">🔵 청팀</span>
+        <div class="mascot"><div class="char blue"><span class="arm l"></span><span class="arm r"></span><span class="eye l"></span><span class="eye r"></span><span class="mouth"></span></div></div>
+        <div class="score num" id="blueScore">0</div>
+        <div class="unit">스쿼트</div>
+        <div class="ppl">참여 <b id="bluePpl">0</b>명</div>
+      </div>
+      <div class="team white" id="teamWhite">
+        <span class="tag">🔴 홍팀</span>
+        <div class="mascot"><div class="char white"><span class="arm l"></span><span class="arm r"></span><span class="eye l"></span><span class="eye r"></span><span class="mouth"></span></div></div>
+        <div class="score num" id="whiteScore">0</div>
+        <div class="unit">스쿼트</div>
+        <div class="ppl">참여 <b id="whitePpl">0</b>명</div>
+      </div>
+    </div>
+    </div>
+    <div class="tug">
+      <div class="fill" id="tugFill"></div>
+      <div class="seam" id="tugSeam"></div>
+      <span class="pct l" id="pctL">50%</span>
+      <span class="pct r" id="pctR">50%</span>
+    </div>
+  </div>
+
+  <!-- Blowout-prevention v2 boost banner -->
+  <div class="boost" id="boostBanner"></div>
+
+  <!-- My contribution -->
+  <div class="mine">
+    <div class="av blue" id="myAv">🐰</div>
+    <div class="info">
+      <div class="l1">나는 <b id="myTeamName">청팀</b> · <span id="myName">신나는토끼81</span></div>
+      <div class="l2">내 스쿼트가 팀 점수에 실시간 반영돼요</div>
+    </div>
+    <div class="mysquat"><div class="n num" id="mySquat">0</div><div class="u">내 스쿼트</div></div>
+  </div>
+  <button class="squatbtn" id="squatBtn">스쿼트 1세트 완료! +10</button>
+
+  <!-- Live feed -->
+  <div class="feed-head">
+    <h2>실시간 응원</h2>
+    <div class="live"><span class="dot"></span>LIVE</div>
+  </div>
+  <div class="feed" id="feed"></div>
+
+  <div class="note">프로토타입 · 시뮬레이션 데이터입니다.<br>우측 하단 ⚙️ 로 시간 점프·자동 유입을 조절해 시연하세요.</div>
+</div>
+
+<!-- Composer -->
+<div class="composer">
+  <div class="inner">
+    <span class="who blue" id="whoChip">청팀</span>
+    <input id="msgInput" maxlength="60" placeholder="우리 팀 응원 댓글…" />
+    <button id="sendBtn">↑</button>
+  </div>
+</div>
+
+<!-- Bottom tab bar (cosmetic, app chrome) -->
+<nav class="tabbar"><div class="inner">
+  <div class="tab"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>스쿼트</div>
+  <div class="tab active"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.2l5.9-.9z"/></svg>혜택</div>
+  <div class="tab"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7z"/><path d="M9 8a3 3 0 016 0"/></svg>스토어</div>
+  <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>내 기록</div>
+</div></nav>
+
+<!-- Winner overlay -->
+<div class="overlay" id="overlay">
+  <div class="winner">
+    <div class="confetti" id="confetti"></div>
+    <div class="z">
+      <div class="small">22:00 · 배틀 종료</div>
+      <div class="badge"><div class="hex outer"></div><div class="hex inner" id="badgeCore"><span class="emoji" id="badgeEmoji">🏆</span></div></div>
+      <h2 id="winTitle">청팀 승리!</h2>
+      <div class="res"><b id="winName">신나는토끼81</b>님, <b id="winTeamName">청팀</b>의 승리 배지를 획득했어요</div>
+      <div class="scoreline"><span class="b" id="finBlue">0</span><span class="x">:</span><span class="w" id="finWhite">0</span></div>
+      <div class="reward">🏅 승리 배지 + 50P 적립</div>
+      <button class="gotit" id="gotit">배지 받기</button>
+      <div class="reset-note">내일 06:00, 새 팀으로 다시 시작돼요 🔄</div>
+    </div>
+  </div>
+</div>
+
+<!-- Dev controls -->
+<button class="devtoggle" id="devToggle">⚙️</button>
+<div class="dev" id="dev">
+  <h3>⚙️ 데모 컨트롤</h3>
+  <div class="lbl">실시간 스쿼트 자동 유입</div>
+  <div class="row"><button id="simBtn">▶ 시뮬 시작</button></div>
+  <div class="lbl">시간 점프</div>
+  <div class="row">
+    <button data-jump="reset">06:00 리셋</button>
+    <button data-jump="mid">14:00</button>
+    <button data-jump="end">22:00 결과</button>
+  </div>
+  <div class="lbl">내 팀</div>
+  <div class="seg">
+    <button data-team="blue" class="on">청팀</button>
+    <button data-team="white">백팀</button>
+  </div>
+  <div class="lbl">속도</div>
+  <div class="seg">
+    <button data-speed="1" class="on">1x</button>
+    <button data-speed="3">3x</button>
+    <button data-speed="8">8x</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const S = {
+    blue: 0, white: 0,
+    bluePpl: 1240, whitePpl: 1240,
+    mySquat: 0, myTeam: 'blue', myName: '신나는토끼81',
+    sim: false, speed: 1, simTimer: null,
+    minutes: 6*60, ended:false
+  };
+  const START = 6*60, END = 22*60;
+
+  const blueNames = ['신나는토끼81','용감한사자','튼튼한곰','날쌘다람쥐','부지런개미','웃는고래','힘찬호랑이','반짝별','무적펭귄','달리는치타','빛나는여우','강철두더지'];
+  const whiteNames = ['상냥한나비','포근한양','명랑한새','꿈꾸는수달','따뜻한햇살','산뜻한바람','초록거북','달콤한꿀벌','조용한사슴','복실강아지','보들판다','말랑문어'];
+  const cheers = [
+    '가보자고 🔥','오늘은 우리가 이긴다','한 세트 더 하고 옴','다리 후들거려도 간다 💪',
+    '점심에 30개 채웠다','지금 차이 얼마 안 나요! 스퍼트','퇴근하고 풀로 간다','우리팀 화이팅!!',
+    '저녁에 한 번 더 올게요','이 악물고 4세트 완료','상대팀 잘하네 ㄷㄷ','지금 들어오면 역전각',
+    '허벅지가 곧 터질 듯','출근 전 10개 적립 완료','오늘만큼은 안 진다','다 같이 막판 스쿼트 🦵'
+  ];
+
+  const $ = id => document.getElementById(id);
+  const fmt = n => n.toLocaleString('ko-KR');
+  const pad = n => String(n).padStart(2,'0');
+  const clockStr = () => pad(Math.floor(S.minutes/60)%24)+':'+pad(Math.floor(S.minutes%60));
+  function cdStr(){
+    let rem = Math.max(0,(END - S.minutes))*60;
+    const h=Math.floor(rem/3600), m=Math.floor((rem%3600)/60), s=Math.floor(rem%60);
+    return pad(h)+':'+pad(m)+':'+pad(s);
+  }
+
+  // ---- Blowout-prevention v2: comeback boost + golden time ----
+  function computeBoost(){
+    const total=S.blue+S.white;
+    if(S.ended || total<800) return {mode:null,trailKey:null};
+    const trailKey = S.blue<S.white?'blue':(S.white<S.blue?'white':null);
+    const trailPct = Math.min(S.blue,S.white)/total;
+    if(trailKey && trailPct<0.46) return {mode:'comeback',trailKey};
+    if((END-S.minutes)<=120) return {mode:'golden',trailKey:null};
+    return {mode:null,trailKey:null};
+  }
+  function myMult(b){
+    if(!b) b=computeBoost();
+    if(b.mode==='comeback' && S.myTeam===b.trailKey) return 2;
+    if(b.mode==='golden') return 1.5;
+    return 1;
+  }
+
+  let lastBlue=0,lastWhite=0;
+  function render(){
+    $('clock').textContent = clockStr();
+    const total = S.blue+S.white;
+    const bluePct = total? S.blue/total : .5;
+    $('blueScore').textContent = fmt(S.blue);
+    $('whiteScore').textContent = fmt(S.white);
+    if(S.blue!==lastBlue){ bump('blueScore'); lastBlue=S.blue; }
+    if(S.white!==lastWhite){ bump('whiteScore'); lastWhite=S.white; }
+    $('bluePpl').textContent = fmt(S.bluePpl);
+    $('whitePpl').textContent = fmt(S.whitePpl);
+    $('mySquat').textContent = fmt(S.mySquat);
+    $('totalSquat').textContent = fmt(total);
+    $('hdrPoint').textContent = fmt(151 + S.mySquat);
+    $('tugFill').style.width = (bluePct*100).toFixed(1)+'%';
+    $('tugSeam').style.left = (bluePct*100).toFixed(1)+'%';
+    $('pctL').textContent = Math.round(bluePct*100)+'%';
+    $('pctR').textContent = (100-Math.round(bluePct*100))+'%';
+    $('teamBlue').classList.toggle('leading', S.blue>S.white && total>0);
+    $('teamWhite').classList.toggle('leading', S.white>S.blue && total>0);
+    const cd = $('countdown');
+    if(S.ended){ $('cdTime').textContent='종료'; cd.classList.remove('urgent'); }
+    else { $('cdTime').textContent = cdStr(); cd.classList.toggle('urgent', (END-S.minutes)<=120); }
+    $('phaseTxt').textContent = S.ended ? '배틀 종료' : (S.minutes>=END ? '집계 중' : '배틀 진행 중');
+    // boost banner + dynamic squat reward
+    const b = computeBoost();
+    const bb = $('boostBanner');
+    if(b.mode==='comeback'){ bb.className='boost comeback show'; bb.textContent=`🔥 ${b.trailKey==='blue'?'청팀':'홍팀'} 역전 부스트! 지금 스쿼트 2배 적립`; }
+    else if(b.mode==='golden'){ bb.className='boost golden show'; bb.textContent='⚡ 골든타임 — 막판 모든 스쿼트 1.5배!'; }
+    else { bb.className='boost'; }
+    const m = myMult(b);
+    $('squatBtn').textContent = S.ended ? '오늘 배틀 종료' : `스쿼트 1세트 완료! +${Math.round(10*m)}` + (m>1?' 🔥':'');
+    $('squatBtn').disabled = S.ended;
+  }
+  function bump(id){ const el=$(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+
+  const feed = $('feed');
+  function sysMsg(t){ const d=document.createElement('div'); d.className='msg system'; d.textContent=t; feed.prepend(d); trim(); }
+  function addMsg(team,name,text,squats){
+    const d=document.createElement('div'); d.className='msg';
+    const sq = squats!=null ? ` · <span class="sq">${squats}개</span>` : '';
+    d.innerHTML = `<span class="chip ${team}">${team==='blue'?'청팀':'홍팀'}</span>
+      <div class="body"><div class="meta"><b>${name}</b>${sq}</div><div class="text"></div></div>`;
+    d.querySelector('.text').textContent = text;
+    feed.prepend(d); trim();
+  }
+  function trim(){ while(feed.children.length>30) feed.removeChild(feed.lastChild); }
+  function autoCheer(){
+    const team = Math.random()<.5?'blue':'white';
+    const names = team==='blue'?blueNames:whiteNames;
+    const name = names[Math.floor(Math.random()*names.length)];
+    const text = cheers[Math.floor(Math.random()*cheers.length)];
+    const sq = Math.random()<.6 ? (Math.floor(Math.random()*9)+1)*10 : null;
+    addMsg(team,name,text,sq);
+  }
+
+  function tick(){
+    if(S.ended) return;
+    let bAdd = Math.floor(Math.random()*140)+40;
+    let wAdd = Math.floor(Math.random()*140)+40;
+    const b = computeBoost();
+    if(b.mode==='comeback'){ if(b.trailKey==='blue') bAdd=Math.round(bAdd*2); else wAdd=Math.round(wAdd*2); }
+    else if(b.mode==='golden'){ bAdd=Math.round(bAdd*1.5); wAdd=Math.round(wAdd*1.5); }
+    S.blue += bAdd;
+    S.white += wAdd;
+    S.bluePpl += Math.random()<.3?1:0;
+    S.whitePpl += Math.random()<.3?1:0;
+    if(Math.random()<.5) autoCheer();
+    S.minutes += 4*S.speed;
+    if(S.minutes>=END){ S.minutes=END; endBattle(); }
+    render();
+  }
+  function startSim(){ if(S.sim) return; S.sim=true; $('simBtn').textContent='⏸ 시뮬 정지'; $('simBtn').classList.add('on'); S.simTimer=setInterval(tick,900); }
+  function stopSim(){ S.sim=false; clearInterval(S.simTimer); $('simBtn').textContent='▶ 시뮬 시작'; $('simBtn').classList.remove('on'); }
+
+  function confettiBurst(){
+    const c=$('confetti'); c.innerHTML='';
+    const cols=['#ffe24d','#7a4fb5','#4f93f5','#7bc86c','#ff9bb0','#f3b200'];
+    for(let i=0;i<28;i++){
+      const s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'%';
+      s.style.background=cols[i%cols.length];
+      s.style.animationDuration=(2.2+Math.random()*1.8)+'s';
+      s.style.animationDelay=(Math.random()*0.6)+'s';
+      c.appendChild(s);
+    }
+  }
+
+  function endBattle(){
+    if(S.ended) return; S.ended=true; stopSim();
+    const blueWin = S.blue>=S.white;
+    const winTeam = blueWin?'blue':'white';
+    const winLabel = blueWin?'청팀':'홍팀';
+    const iWon = S.myTeam===winTeam;
+    $('badgeEmoji').textContent = iWon ? (blueWin?'🔵':'🔴') : '🥲';
+    $('badgeCore').style.background = blueWin
+      ? 'linear-gradient(160deg,#7db5ff,#2f6fe0)'
+      : 'linear-gradient(160deg,#ffffff,#cfd6e2)';
+    $('winTitle').textContent = winLabel+' 승리!';
+    $('winName').textContent = S.myName;
+    $('winTeamName').textContent = winLabel;
+    $('finBlue').textContent = fmt(S.blue);
+    $('finWhite').textContent = fmt(S.white);
+    document.querySelector('.winner .res').innerHTML = iWon
+      ? `<b>${S.myName}</b>님, <b>${winLabel}</b>의 승리 배지를 획득했어요 🎖️`
+      : `아쉽게 졌어요. 내일 <b>${S.myName}</b>님의 설욕전을 기다릴게요 🔄`;
+    document.querySelector('.winner .reward').style.display = iWon?'inline-flex':'none';
+    sysMsg(`🏁 22:00 배틀 종료 — ${winLabel} 승리! (${fmt(S.blue)} : ${fmt(S.white)})`);
+    confettiBurst();
+    setTimeout(()=>$('overlay').classList.add('show'), 550);
+    render();
+  }
+
+  function resetBattle(){
+    S.blue=0; S.white=0; S.mySquat=0; S.ended=false; S.minutes=START;
+    S.bluePpl=1180+Math.floor(Math.random()*120);
+    S.whitePpl=1180+Math.floor(Math.random()*120);
+    feed.innerHTML='';
+    $('overlay').classList.remove('show');
+    sysMsg('🌅 06:00 — 오늘의 팀이 새로 편성됐어요! 평균 스쿼트 수가 비슷하도록 양 팀 랜덤 배정.');
+    sysMsg(`당신은 오늘 ${S.myTeam==='blue'?'청팀':'홍팀'} 입니다. 스쿼트로 팀에 기여하세요!`);
+    render();
+  }
+
+  function setMyTeam(t){
+    S.myTeam=t;
+    const isBlue=t==='blue';
+    $('myTeamName').textContent = isBlue?'청팀':'홍팀';
+    $('myAv').className='av '+t;
+    $('whoChip').className='who '+t; $('whoChip').textContent=isBlue?'청팀':'홍팀';
+    document.querySelectorAll('[data-team]').forEach(b=>b.classList.toggle('on',b.dataset.team===t));
+  }
+
+  $('squatBtn').onclick = ()=>{ if(S.ended) return; const add=Math.round(10*myMult()); S.mySquat+=add; if(S.myTeam==='blue') S.blue+=add; else S.white+=add; bump('mySquat'); render(); };
+  $('sendBtn').onclick = sendMsg;
+  $('msgInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendMsg(); });
+  function sendMsg(){ const v=$('msgInput').value.trim(); if(!v||S.ended) return; addMsg(S.myTeam,S.myName,v,S.mySquat||null); $('msgInput').value=''; }
+  $('gotit').onclick = ()=>$('overlay').classList.remove('show');
+
+  $('devToggle').onclick = ()=>$('dev').classList.toggle('show');
+  $('simBtn').onclick = ()=> S.sim?stopSim():startSim();
+  document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{
+    const j=b.dataset.jump;
+    if(j==='reset'){ resetBattle(); }
+    else if(j==='mid'){ S.minutes=14*60; if(S.blue===0){S.blue=96200;S.white=63400;} render(); }
+    else if(j==='end'){ if(S.blue===0){ S.blue=128450; S.white=121980; } S.minutes=END; endBattle(); }
+  });
+  document.querySelectorAll('[data-team]').forEach(b=>b.onclick=()=>setMyTeam(b.dataset.team));
+  document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{
+    S.speed=+b.dataset.speed;
+    document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('on',x===b));
+  });
+
+  setMyTeam('blue');
+  resetBattle();
+  render();
+})();
+</script>
+</body>
+</html>
